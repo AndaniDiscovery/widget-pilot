@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
@@ -31,23 +32,35 @@ Future<void> _initializeWorkManager() async {
 @pragma('vm:entry-point') // Required if app is obfuscated or using Flutter 3.1+
 void callbackDispatcher() async {
   Workmanager().executeTask((task, inputData) async {
-    if (task == taskName) {
+    print("Task name: $task");
+    if (task == taskName || Workmanager.iOSBackgroundTask == task) {
+      stderr.writeln("Task: $task background fetch was triggered");
       final randomNum = Random().nextInt(100);
       await _updateWidgetWithData(randomNum);
       return Future.value(true);
     }
+
+
+    stderr.writeln("Task: $task, task id not recognized");
+
     return Future.value(false);
   });
 }
 
 // Update widget with generated random number
 Future<void> _updateWidgetWithData(int randomNum) async {
-  final data = "Random = $randomNum";
-  await HomeWidget.saveWidgetData(dataKey, data);
-  await HomeWidget.updateWidget(
-    iOSName: iosWidgetName,
-    androidName: androidWidgetName,
-  );
+  try {
+    final data = "Random = $randomNum";
+    await HomeWidget.saveWidgetData(dataKey, data);
+    await HomeWidget.updateWidget(
+      iOSName: iosWidgetName,
+      androidName: androidWidgetName,
+    );
+  } on Exception catch (e) {
+    stderr.writeln("Exception $e");
+  } finally {
+    stderr.writeln("Widget update is done!!!");
+  }
 }
 
 // Main application widget

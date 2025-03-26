@@ -13,6 +13,8 @@ struct Provider: TimelineProvider {
     private func dataFromFlutter()-> SimpleEntry {
         let userDefaults = UserDefaults(suiteName:"group.homeScreenApp")
         let text = userDefaults?.string(forKey: "text_from_flutter_app") ?? "0"
+        
+        print("dataFromFlutter(), we are cooking...")
         return SimpleEntry(date: Date(), text: text)
         
     }
